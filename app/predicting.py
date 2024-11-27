@@ -8,11 +8,12 @@ data = pd.read_csv("../data/Sleep_health_and_lifestyle_dataset.csv")
 data1 = pd.read_csv("../data/student_sleep_patterns.csv")
 
 # Rename columns for consistency
-data.rename(columns={"Sleep Duration": "Sleep_Duration"}, inplace=True)
+data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity"}, inplace=True)
+
 
 # Filter relevant columns
-data_filtered = data[["Age", "Sleep_Duration", "Gender"]]
-data1_filtered = data1[["Age", "Sleep_Duration", "Gender"]]
+data_filtered = data[["Age", "Sleep_Duration", "Gender","Physical_Activity"]]
+data1_filtered = data1[["Age", "Sleep_Duration", "Gender","Physical_Activity"]]
 
 # Combine datasets
 combined_data = pd.concat([data_filtered, data1_filtered], ignore_index=True)
@@ -24,7 +25,7 @@ combined_data.dropna(inplace=True)
 combined_data = pd.get_dummies(combined_data, columns=["Gender"], drop_first=True)
 
 # Prepare features (X) and target (y)
-X = combined_data[["Age", "Gender_Male"]]
+X = combined_data[["Age", "Gender_Male", "Physical_Activity"]]
 y = combined_data["Sleep_Duration"]
 
 # Split into training and testing sets
@@ -38,13 +39,13 @@ gb_model.fit(X_train, y_train)
 try:
     user_age = float(input("Input your age: "))
     gender_input = input("Input your gender (Male/Female): ").strip()
-
+    physical_activity = float(input("Input your level of Physical Activity (minutes/day): "))
     if gender_input not in ["Male", "Female"]:
         print("Invalid gender input. Please input 'Male' or 'Female'.")
     else:
         # Encode gender as a dummy variable
         gender_male = 1 if gender_input == "Male" else 0
-        predicted_sleep_duration = gb_model.predict([[user_age, gender_male]])[0]
+        predicted_sleep_duration = gb_model.predict([[user_age, gender_male, physical_activity]])[0]
         print(f"Predicted Sleep Duration for Age {user_age} ({gender_input}): {predicted_sleep_duration:.2f} hours")
 except ValueError:
     print("Invalid age input. Please input a numeric value.")
