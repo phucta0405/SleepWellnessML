@@ -4,8 +4,8 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 
 # Load datasets
-data = pd.read_csv("Sleep_health_and_lifestyle_dataset.csv")
-data1 = pd.read_csv("student_sleep_patterns.csv")
+data = pd.read_csv("../data/Sleep_health_and_lifestyle_dataset.csv")
+data1 = pd.read_csv("../data/student_sleep_patterns.csv")
 
 # Rename columns for consistency
 data.rename(columns={"Sleep Duration": "Sleep_Duration"}, inplace=True)
