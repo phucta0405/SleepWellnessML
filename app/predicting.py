@@ -40,17 +40,6 @@ gb_model_female = GradientBoostingRegressor(random_state=42)
 gb_model_male.fit(X_train_male, y_train_male)
 gb_model_female.fit(X_train_female, y_train_female)
 
-try:
-    user_age = float(input("Input your age: "))
-    gender_input = input("Input your gender (Male/Female): ").strip()
-
-    if gender_input not in ["Male", "Female"]:
-        print("Invalid gender input. Please input 'Male' or 'Female'.")
-    else:
-        if gender_input == "Male":
-            predicted_sleep_duration = gb_model_male.predict([[user_age]])[0]
-        else:
-            predicted_sleep_duration = gb_model_female.predict([[user_age]])[0]
-        print(f"Predicted Sleep Duration for Age {user_age}: {predicted_sleep_duration:.2f} hours")
-except ValueError:
-    print("Invalid age input. Please input a numeric value.")
+import joblib
+joblib.dump(gb_model_male, 'gb_model_male.pkl')
+joblib.dump(gb_model_female, 'gb_model_female.pkl')
