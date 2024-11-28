@@ -19,14 +19,37 @@ data2 = pd.read_csv("../data/Health_Sleep_Statistics.csv")
 data2['Gender'] = data2['Gender'].replace({'f': 'Female', 'm': 'Male'})
 data2['Physical Activity Level'] = data2['Physical Activity Level'].replace({'low': 10, 'medium': 30, 'high': 60 }).infer_objects(copy=False)
 pd.set_option('future.no_silent_downcasting', False)
-data2.rename(columns={"Physical Activity Level": "Physical_Activity"}, inplace=True)
-data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity"}, inplace=True)
+data2.rename(columns={"Physical Activity Level": "Physical_Activity", "Sleep Quality" : "Sleep_Quality"}, inplace=True)
+data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity", "Quality of Sleep": "Sleep_Quality"}, inplace=True)
 
-data_filtered = data[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
-data1_filtered = data1[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
-data2_filtered = data2[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
+weights = {"Sleep_Duration": 0.5, "Physical_Activity": 0.2, "Sleep_Quality": 0.3}
 
-combined_data = pd.concat([data_filtered, data1_filtered, data2_filtered], ignore_index=True)
+data_filtered = data[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+data1_filtered = data1[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+data2_filtered = data2[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+
+def select_top_half_high_scores(dataset, weights):
+    dataset["Composite_Score"] = (
+        dataset["Sleep_Duration"] * weights["Sleep_Duration"] +
+        dataset["Physical_Activity"] * weights["Physical_Activity"] +
+        dataset["Sleep_Quality"] * weights["Sleep_Quality"]
+    )
+
+    median_score = dataset["Composite_Score"].median()
+    high_score_individuals = dataset[dataset["Composite_Score"] >= median_score]
+    high_score_individuals = high_score_individuals.sort_values(by="Composite_Score", ascending=False)
+    top_half = high_score_individuals.iloc[:len(high_score_individuals) // 2]
+    
+    return top_half
+filtered_data = select_top_half_high_scores(data_filtered, weights)
+filtered_data1 = select_top_half_high_scores(data1_filtered, weights)
+filtered_data2 = select_top_half_high_scores(data2_filtered, weights)
+filtered_data = filtered_data.drop(columns=["Composite_Score"])
+filtered_data1 = filtered_data1.drop(columns=["Composite_Score"])
+filtered_data2 = filtered_data2.drop(columns=["Composite_Score"])
+
+
+combined_data = pd.concat([filtered_data, filtered_data1, filtered_data2], ignore_index=True)
 
 combined_data.dropna(inplace=True)
 
