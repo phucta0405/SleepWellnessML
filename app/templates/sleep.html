@@ -56,6 +56,12 @@
           <input type="number" class="form-control" id="activityMinutes" placeholder="Enter minutes of physical activity per day" min="0" required>
         </div>
 
+        <!-- Actual Sleep Duration -->
+        <div class="mb-3">
+          <label for="sleepDurationInput" class="form-label">Sleep Duration (Hours)</label>
+          <input type="number" class="form-control" id="sleepDurationInput" placeholder="Enter your actual sleep duration (hours)" step="0.1" min="0" required>
+        </div>
+
         <!-- Submit Button -->
         <button type="button" class="btn btn-primary w-100" onclick="predictSleep()">Predict</button>
       </form>
@@ -63,8 +69,9 @@
       <!-- Output Section -->
       <div id="output" class="output-container d-none">
         <h4 class="text-center">Prediction Results</h4>
-        <p><strong>Sleep Duration:</strong> <span id="sleepDuration">-</span> hours</p>
-        <p><strong>Sleep Quality:</strong> <span id="sleepQuality">-</span></p>
+        <p><strong>Predicted Sleep Duration:</strong> <span id="predictedSleepDuration">-</span> hours</p>
+        <p><strong>Sleep Advice:</strong></p>
+        <p id="sleepAdvice">-</p>
       </div>
     </div>
   </div>
@@ -72,25 +79,37 @@
   <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Function to simulate sleep prediction
-    function predictSleep() {
+    // Function to make POST request to Flask API
+    async function predictSleep() {
       const age = document.getElementById("ageInput").value;
       const gender = document.querySelector('input[name="gender"]:checked')?.value;
       const activityMinutes = document.getElementById("activityMinutes").value;
+      const sleepDuration = document.getElementById("sleepDurationInput").value;
 
-      if (!age || !gender || !activityMinutes) {
+      if (!age || !gender || !activityMinutes || !sleepDuration) {
         alert("Please fill out all fields.");
         return;
       }
 
-      // Simulate predictions (Replace with actual predictions from your backend)
-      const sleepDuration = (8 - (age / 100) + activityMinutes / 500).toFixed(2);
-      const sleepQuality = activityMinutes >= 60 ? "Good" : activityMinutes >= 30 ? "Average" : "Poor";
+      const response = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          age: age,
+          gender: gender,
+          physical_activity_minutes: activityMinutes,
+          sleep_duration: sleepDuration  // Include actual sleep duration
+        })
+      });
 
-      // Display predictions
-      document.getElementById("sleepDuration").innerText = sleepDuration;
-      document.getElementById("sleepQuality").innerText = sleepQuality;
-      document.getElementById("output").classList.remove("d-none");
+      if (response.ok) {
+        const result = await response.json();
+        document.getElementById("predictedSleepDuration").innerText = result.predicted_sleep_duration;
+        document.getElementById("sleepAdvice").innerText = result.sleep_advice;
+        document.getElementById("output").classList.remove("d-none");
+      } else {
+        alert("Error: Unable to get predictions.");
+      }
     }
   </script>
 </body>

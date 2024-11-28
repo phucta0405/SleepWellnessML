@@ -4,7 +4,7 @@ gb_model_male = joblib.load('gb_model_male.pkl')
 gb_model_female = joblib.load('gb_model_female.pkl')
 
 def provide_sleep_advice(predicted_sleep_duration, age, gender_input, physical_activities):
-    recommended_sleep = predict_and_recommend_sleep(age, gender_input, physical_activities)
+    recommended_sleep = round(predict_and_recommend_sleep(age, gender_input, physical_activities),2)
 
     if predicted_sleep_duration < recommended_sleep:
         return f"At age {age}, it's recommended to get around {recommended_sleep} hours of sleep. You should aim to improve your sleep duration for better wellness."
