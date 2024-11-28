@@ -6,13 +6,13 @@ import numpy as np
 app = Flask(__name__)
 
 # Load the pre-trained models
-sleep_duration_model = joblib.load("sleep_duration_model.pkl")  # Replace with your model file
-sleep_quality_model = joblib.load("sleep_quality_model.pkl")    # Replace with your model file
+male_sleep_duration_model = joblib.load("gb_model_male.pkl") 
+female_sleep_duration_model = joblib.load("gb_model_female.pkl")    
 
 # Route for the Sleep Predictor Page
 @app.route("/")
 def sleep_predictor_page():
-    return render_template("predictor.html")  # Serve the HTML page (place this file in the templates/ folder)
+    return render_template("predictor.html")  
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -35,13 +35,18 @@ def predict():
         # Prepare input features for models
         features = np.array([[age, gender_encoded, physical_activity_minutes]])
 
+        if gender_encoded:
+            sleep_duration_model = male_sleep_duration_model
+        else:
+            sleep_duration_model = female_sleep_duration_model
+
         # Make predictions
         sleep_duration = sleep_duration_model.predict(features)[0]
-        sleep_quality = sleep_quality_model.predict(features)[0]
+        #sleep_quality = sleep_quality_model.predict(features)[0]
 
         # Map sleep quality to a more descriptive string (if needed)
-        sleep_quality_mapping = {0: "Poor", 1: "Average", 2: "Good"}
-        sleep_quality_label = sleep_quality_mapping.get(int(sleep_quality), "Unknown")
+        #sleep_quality_mapping = {0: "Poor", 1: "Average", 2: "Good"}
+        #sleep_quality_label = sleep_quality_mapping.get(int(sleep_quality), "Unknown")
 
         # Return predictions
         return jsonify({
