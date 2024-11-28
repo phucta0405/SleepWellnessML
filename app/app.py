@@ -37,12 +37,13 @@ def predict():
         predicted_sleep_duration = predict_and_recommend_sleep(age, gender, physical_activity_minutes)
 
         # Generate sleep advice
-        sleep_advice = provide_sleep_advice(actual_sleep_duration, age, gender, physical_activity_minutes)
+        sleep_advice, isEnough = provide_sleep_advice(actual_sleep_duration, age, gender, physical_activity_minutes)
 
         # Return predictions and advice
         return jsonify({
             "predicted_sleep_duration": round(predicted_sleep_duration, 2),
-            "sleep_advice": sleep_advice
+            "sleep_advice": sleep_advice,
+            "isEnough": isEnough
         })
 
     except ValueError as e:

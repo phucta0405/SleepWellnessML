@@ -6,14 +6,23 @@
   <title>Sleep Predictor</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+
   <style>
+    body {
+      background: linear-gradient(to right, #ff7e5f, #feb47b); /* Example gradient */
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
     .form-container {
       max-width: 600px;
       margin: 50px auto;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      background-color: #f9f9f9;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      background-color: white; /* Keep the form white for contrast */
     }
     .output-container {
       margin-top: 20px;
@@ -22,12 +31,55 @@
       border: 1px solid #c8e6c9;
       border-radius: 10px;
     }
+    h2.title {
+      font-family: 'Poppins', sans-serif; /* Use a modern sans-serif font */
+      font-size: 2.5rem; /* Adjust the font size */
+      text-align: center; /* Center the text */
+      color: #4a90e2; /* Soft blue color */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+      margin-bottom: 20px;
+    }
+    /* Style the labels */
+    label {
+      font-family: 'Poppins', sans-serif; /* Use a clean modern font */
+      font-size: 1rem;
+      color: #555; /* Soft gray color */
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    /* Style the input boxes */
+    input[type="number"], input[type="text"], input[type="email"], select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border: 1px solid #ccc; /* Light border */
+      border-radius: 5px; /* Rounded corners */
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+      transition: all 0.3s ease; /* Smooth focus effect */
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus, input[type="email"]:focus, select:focus {
+      outline: none;
+      border-color: #4a90e2; 
+      box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+    }
+
+    /* Style the radio buttons and checkboxes */
+    .form-check-input {
+      accent-color: #4a90e2; /* Custom color for the radio/checkbox */
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="form-container">
-      <h2 class="text-center mb-4">Sleep Predictor</h2>
+      <h2 class="title text-center mb-4"><i class="fas fa-bed"></i> Sleep Predictor</h2>
       <form id="sleepForm">
         <!-- Age Input -->
         <div class="mb-3">
@@ -106,6 +158,12 @@
         const result = await response.json();
         document.getElementById("predictedSleepDuration").innerText = result.predicted_sleep_duration;
         document.getElementById("sleepAdvice").innerText = result.sleep_advice;
+        if (result.isEnough){
+          document.getElementById("output").style.backgroundColor = '#e8f5e9';
+        }
+        else {
+          document.getElementById("output").style.backgroundColor = '#f56056';
+        }
         document.getElementById("output").classList.remove("d-none");
       } else {
         alert("Error: Unable to get predictions.");

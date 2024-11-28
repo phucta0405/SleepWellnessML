@@ -6,27 +6,13 @@ from sklearn.metrics import mean_squared_error
 
 data = pd.read_csv("../data/Sleep_health_and_lifestyle_dataset.csv")
 data1 = pd.read_csv("../data/student_sleep_patterns.csv")
-data2 = pd.read_csv("../data/Health_Sleep_Statistics.csv")
 
-data2['Bedtime'] = pd.to_datetime(data2['Bedtime']).dt.strftime('%H:%M')
-data2['Wake-up Time'] = pd.to_datetime(data2['Wake-up Time']).dt.strftime('%H:%M')
-data2['Bedtime'] = pd.to_datetime(data2['Bedtime'], format='%H:%M')
-data2['Wake-up Time'] = pd.to_datetime(data2['Wake-up Time'], format='%H:%M')
-data2['Sleep_Duration'] = (data2['Wake-up Time'] - data2['Bedtime']).dt.total_seconds() / 3600
-data2['Sleep_Duration'] = data2['Sleep_Duration'].apply(lambda x: x + 24 if x < 0 else x)
-data2.to_csv("../data/Health_Sleep_Statistics.csv", index=False)
-data2 = pd.read_csv("../data/Health_Sleep_Statistics.csv")
-data2['Gender'] = data2['Gender'].replace({'f': 'Female', 'm': 'Male'})
-data2['Physical Activity Level'] = data2['Physical Activity Level'].replace({'low': 10, 'medium': 30, 'high': 60 }).infer_objects(copy=False)
-pd.set_option('future.no_silent_downcasting', False)
-data2.rename(columns={"Physical Activity Level": "Physical_Activity"}, inplace=True)
 data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity"}, inplace=True)
 
 data_filtered = data[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
 data1_filtered = data1[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
-data2_filtered = data2[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
 
-combined_data = pd.concat([data_filtered, data1_filtered, data2_filtered], ignore_index=True)
+combined_data = pd.concat([data_filtered, data1_filtered], ignore_index=True)
 
 combined_data.dropna(inplace=True)
 
