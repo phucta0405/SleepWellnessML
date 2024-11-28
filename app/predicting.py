@@ -30,6 +30,7 @@ data3 = pd.read_csv("../data/Sleep_Efficiency.csv")
 data3['Exercise frequency'] = data3['Exercise frequency'].replace({1.0: 15, 2.0: 20, 3.0: 35, 4.0: 60, 5.0: 75}).infer_objects(copy=False)
 data3['Sleep efficiency'] = data3['Sleep efficiency'] * 10
 
+
 data2.rename(columns={"Physical Activity Level": "Physical_Activity", "Sleep Quality" : "Sleep_Quality"}, inplace=True)
 data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity", "Quality of Sleep": "Sleep_Quality"}, inplace=True)
 data3.rename(columns={"Sleep efficiency": "Sleep_Quality", "Exercise frequency" : "Physical_Activity"}, inplace=True)
