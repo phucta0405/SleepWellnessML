@@ -6,13 +6,65 @@ from sklearn.metrics import mean_squared_error
 
 data = pd.read_csv("../data/Sleep_health_and_lifestyle_dataset.csv")
 data1 = pd.read_csv("../data/student_sleep_patterns.csv")
+data2 = pd.read_csv("../data/Health_Sleep_Statistics.csv")
+data3 = pd.read_csv("../data/Sleep_Efficiency.csv")
 
-data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity"}, inplace=True)
+data2['Bedtime'] = pd.to_datetime(data2['Bedtime']).dt.strftime('%H:%M')
+data2['Wake-up Time'] = pd.to_datetime(data2['Wake-up Time']).dt.strftime('%H:%M')
+data2['Bedtime'] = pd.to_datetime(data2['Bedtime'], format='%H:%M')
+data2['Wake-up Time'] = pd.to_datetime(data2['Wake-up Time'], format='%H:%M')
+data2['Sleep_Duration'] = (data2['Wake-up Time'] - data2['Bedtime']).dt.total_seconds() / 3600
+data2['Sleep_Duration'] = data2['Sleep_Duration'].apply(lambda x: x + 24 if x < 0 else x)
+data2.to_csv("../data/Health_Sleep_Statistics.csv", index=False)
+data2 = pd.read_csv("../data/Health_Sleep_Statistics.csv")
+data2['Gender'] = data2['Gender'].replace({'f': 'Female', 'm': 'Male'})
+data2['Physical Activity Level'] = data2['Physical Activity Level'].replace({'low': 10, 'medium': 30, 'high': 60 }).infer_objects(copy=False)
+pd.set_option('future.no_silent_downcasting', False)
 
-data_filtered = data[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
-data1_filtered = data1[["Age", "Sleep_Duration", "Gender", "Physical_Activity"]]
+data3["Bedtime"] = pd.to_datetime(data3["Bedtime"])
+data3["Wakeup time"] = pd.to_datetime(data3["Wakeup time"])
+data3["Sleep_Duration"] = (data3["Wakeup time"] - data3["Bedtime"]).dt.total_seconds() / 3600
+data3["Sleep_Duration"] = data3["Sleep_Duration"].apply(lambda x: x + 24 if x < 0 else x)
+data3.to_csv("../data/Sleep_Efficiency.csv", index=False)
+data3 = pd.read_csv("../data/Sleep_Efficiency.csv")
+data3['Exercise frequency'] = data3['Exercise frequency'].replace({1.0: 15, 2.0: 20, 3.0: 35, 4.0: 60, 5.0: 75}).infer_objects(copy=False)
+data3['Sleep efficiency'] = data3['Sleep efficiency'] * 10
 
-combined_data = pd.concat([data_filtered, data1_filtered], ignore_index=True)
+
+data2.rename(columns={"Physical Activity Level": "Physical_Activity", "Sleep Quality" : "Sleep_Quality"}, inplace=True)
+data.rename(columns={"Sleep Duration": "Sleep_Duration", "Physical Activity Level": "Physical_Activity", "Quality of Sleep": "Sleep_Quality"}, inplace=True)
+data3.rename(columns={"Sleep efficiency": "Sleep_Quality", "Exercise frequency" : "Physical_Activity"}, inplace=True)
+
+weights = {"Sleep_Duration": 0.5, "Physical_Activity": 0.2, "Sleep_Quality": 0.3}
+
+data_filtered = data[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+data1_filtered = data1[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+data2_filtered = data2[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+data3_filtered = data3[["Age", "Sleep_Duration", "Gender", "Physical_Activity", "Sleep_Quality"]]
+
+def select_top_half_high_scores(dataset, weights):
+    dataset["Composite_Score"] = (
+        dataset["Sleep_Duration"] * weights["Sleep_Duration"] +
+        dataset["Physical_Activity"] * weights["Physical_Activity"] +
+        dataset["Sleep_Quality"] * weights["Sleep_Quality"]
+    )
+    median_score = dataset["Composite_Score"].median()
+    high_score_individuals = dataset[dataset["Composite_Score"] >= median_score]
+    high_score_individuals = high_score_individuals.sort_values(by="Composite_Score", ascending=False)
+    top_half = high_score_individuals.iloc[:len(high_score_individuals) // 2]
+    
+    return top_half
+filtered_data = select_top_half_high_scores(data_filtered, weights)
+filtered_data1 = select_top_half_high_scores(data1_filtered, weights)
+filtered_data2 = select_top_half_high_scores(data2_filtered, weights)
+filtered_data3 = select_top_half_high_scores(data3_filtered, weights)
+filtered_data = filtered_data.drop(columns=["Composite_Score"])
+filtered_data1 = filtered_data1.drop(columns=["Composite_Score"])
+filtered_data2 = filtered_data2.drop(columns=["Composite_Score"])
+filtered_data3 = filtered_data3.drop(columns=["Composite_Score"])
+
+
+combined_data = pd.concat([filtered_data, filtered_data1, filtered_data2, filtered_data3], ignore_index=True)
 
 combined_data.dropna(inplace=True)
 
