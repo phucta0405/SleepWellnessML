@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep Predictor</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      background-color: #f9f9f9;
+    }
+    .output-container {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h2 class="text-center mb-4">Sleep Predictor</h2>
+      <form id="sleepForm">
+        <!-- Age Input -->
+        <div class="mb-3">
+          <label for="ageInput" class="form-label">Age</label>
+          <input type="number" class="form-control" id="ageInput" placeholder="Enter your age" min="0" required>
+        </div>
+
+        <!-- Gender Selection -->
+        <div class="mb-3">
+          <label class="form-label">Gender</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" required>
+              <label class="form-check-label" for="genderMale">Male</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female" required>
+              <label class="form-check-label" for="genderFemale">Female</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Physical Activity Input -->
+        <div class="mb-3">
+          <label for="activityMinutes" class="form-label">Physical Activity (Minutes per Day)</label>
+          <input type="number" class="form-control" id="activityMinutes" placeholder="Enter minutes of physical activity per day" min="0" required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" class="btn btn-primary w-100" onclick="predictSleep()">Predict</button>
+      </form>
+
+      <!-- Output Section -->
+      <div id="output" class="output-container d-none">
+        <h4 class="text-center">Prediction Results</h4>
+        <p><strong>Sleep Duration:</strong> <span id="sleepDuration">-</span> hours</p>
+        <p><strong>Sleep Quality:</strong> <span id="sleepQuality">-</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Function to simulate sleep prediction
+    function predictSleep() {
+      const age = document.getElementById("ageInput").value;
+      const gender = document.querySelector('input[name="gender"]:checked')?.value;
+      const activityMinutes = document.getElementById("activityMinutes").value;
+
+      if (!age || !gender || !activityMinutes) {
+        alert("Please fill out all fields.");
+        return;
+      }
+
+      // Simulate predictions (Replace with actual predictions from your backend)
+      const sleepDuration = (8 - (age / 100) + activityMinutes / 500).toFixed(2);
+      const sleepQuality = activityMinutes >= 60 ? "Good" : activityMinutes >= 30 ? "Average" : "Poor";
+
+      // Display predictions
+      document.getElementById("sleepDuration").innerText = sleepDuration;
+      document.getElementById("sleepQuality").innerText = sleepQuality;
+      document.getElementById("output").classList.remove("d-none");
+    }
+  </script>
+</body>
+</html>
