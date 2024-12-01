@@ -78,6 +78,36 @@
     .form-group {
       margin-bottom: 20px;
     }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+    }
+    .chat-box {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .chat-box p {
+      margin: 5px 0;
+    }
+    .chat-box .user {
+      text-align: right;
+      color: #4a90e2;
+    }
+    .chat-box .bot {
+      text-align: left;
+      color: #555;
+    }
+
   </style>
 </head>
 <body>
@@ -166,6 +196,14 @@
         <p><strong>Predicted Sleep Quality:</strong> <span id="predictedSleepQuality">-</span></p>
       </div>
     </div>
+    <div class="chat-container">
+        <h2 class="text-center">Chatbot</h2>
+        <div class="input-group">
+          <input type="text" id="userInput" class="form-control" placeholder="Type your message here..." aria-label="User input">
+          <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+        </div>
+        <div id="chatBox" class="chat-box"></div>
+      </div>
   </div>
 
   <!-- Bootstrap Bundle JS -->
