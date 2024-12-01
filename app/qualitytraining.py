@@ -55,10 +55,17 @@ def train_model(X_train, y_train):
 
     return best_model
 
-def predict_optimal_sleep(model, scaler, age, gender, study_hours, screen_time, caffeine_intake, physical_activity):
+def predict_optimal_sleep(model, scaler, age, gender, real_duration, study_hours, screen_time, caffeine_intake, physical_activity):
     sleep_durations = np.linspace(4, 12, 100)
     max_quality = -np.inf
     best_duration = 0
+
+    features = np.array([[age, gender, real_duration, study_hours, 
+                              screen_time, caffeine_intake, physical_activity]])
+    scaled_features = scaler.transform(features)
+    real_quality = model.predict(scaled_features)[0]
+
+    duration_quality = []
 
     for sleep_duration in sleep_durations:
         features = np.array([[age, gender, sleep_duration, study_hours, 
@@ -67,11 +74,15 @@ def predict_optimal_sleep(model, scaler, age, gender, study_hours, screen_time, 
 
         predicted_quality = model.predict(scaled_features)[0]
 
+        duration_quality.append((sleep_duration, predicted_quality))
+
         if predicted_quality > max_quality:
             max_quality = predicted_quality
             best_duration = sleep_duration
+        
+    durations, qualities = zip(*duration_quality)
 
-    return best_duration, max_quality
+    return real_quality, best_duration, max_quality, np.array(durations), np.array(qualities)
 
 if __name__ == "__main__":
     data = load_data()
@@ -102,7 +113,7 @@ if __name__ == "__main__":
             gender_encoded = 1 if gender_input == "Male" else 0
 
             # Predict optimal sleep duration
-            best_duration, max_quality = predict_optimal_sleep(
+            best_duration, max_quality, _, _ = predict_optimal_sleep(
                 model, scaler, user_age, gender_encoded, study_hours, 
                 screen_time, caffeine_intake, physical_activity
             )

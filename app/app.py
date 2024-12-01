@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import joblib
 import numpy as np
 from recommendations import provide_sleep_advice, predict_and_recommend_sleep
-from qualitytraining import scaler
+from qualitytraining import predict_optimal_sleep
 
 app = Flask(__name__)
 
@@ -72,14 +72,20 @@ def predict_sleep_quality():
         gender_binary = 1 if gender == "male" else 0
 
         # Prepare input data for the model
-        input_features = scaler.transform(np.array([[age, gender_binary, sleep_duration, study_hours, screen_time, caffeine_intake, physical_activity]]))
+        #input_features = scaler.transform(np.array([[age, gender_binary, sleep_duration, study_hours, screen_time, caffeine_intake, physical_activity]]))
 
         # Predict sleep quality using the loaded model
-        predicted_quality = round(sleep_quality_model.predict(input_features)[0])
+        #predicted_quality = round(sleep_quality_model.predict(input_features)[0])
+
+        real_quality, best_duration, best_quality, durations, qualities = predict_optimal_sleep(sleep_quality_model, scaler, age, gender, sleep_duration, study_hours, screen_time, caffeine_intake, physical_activity)
 
         # Return the prediction result
         return jsonify({
-            "predicted_sleep_quality": predicted_quality
+            "predicted_sleep_quality": predicted_quality,
+            "optimal_duration": best_duration,
+            "optimal_quality": best_quality,
+            "durations": durations.tolist(),  # Convert NumPy array to list for JSON serialization
+            "qualities": qualities.tolist()   # Convert NumPy array to list for JSON serialization
         })
 
     except ValueError as e:

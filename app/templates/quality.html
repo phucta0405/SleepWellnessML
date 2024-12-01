@@ -194,6 +194,8 @@
       <div id="output" class="output-container d-none">
         <h4 class="text-center">Prediction Results</h4>
         <p><strong>Predicted Sleep Quality:</strong> <span id="predictedSleepQuality">-</span></p>
+        <p><strong>Suggestion:</strong> <span id="bestSleepDuration">-</span></p>
+        <canvas id="qualityGraph" width="600" height="400"></canvas>
       </div>
     </div>
     <div class="chat-container">
@@ -244,6 +246,49 @@
 
         // Update the content of the output box
         document.getElementById("predictedSleepQuality").innerText = `${result.predicted_sleep_quality}/10`;
+
+        document.getElementById("bestSleepDuration").innerText = `The sleep duration that will produce the best sleep quality for you is: ${result.optimal_duration} hours, which will produce a sleep quality of ${result.predicted_sleep_quality}/10.`;
+
+        // Plot the durations vs qualities graph
+        const ctx = document.getElementById("qualityGraph").getContext("2d");
+        new Chart(ctx, {
+            type: "line",
+            data: {
+            labels: result.durations, // Sleep durations
+            datasets: [
+                {
+                label: "Predicted Sleep Quality",
+                data: result.qualities, // Predicted qualities
+                borderColor: "blue",
+                borderWidth: 2,
+                fill: false
+                }
+            ]
+            },
+            options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                display: true
+                }
+            },
+            scales: {
+                x: {
+                title: {
+                    display: true,
+                    text: "Sleep Duration (hours)"
+                }
+                },
+                y: {
+                title: {
+                    display: true,
+                    text: "Predicted Sleep Quality"
+                }
+                }
+            }
+            }
+        });
+
         outputContainer.classList.remove("d-none");
       } else {
         alert("Error: Unable to get predictions.");
