@@ -55,7 +55,7 @@ def preprocess_data(data):
 def train_model(X_train, y_train):
     rf_model = RandomForestRegressor(random_state=42)
     param_dist = {
-        'n_estimators': [50, 100, 300, 600],
+        'n_estimators': [50, 100, 200, 500],
         'max_depth': [None, 10, 20, 30, 40],
         'min_samples_split': randint(2, 20),
         'min_samples_leaf': randint(1, 20),
@@ -66,7 +66,7 @@ def train_model(X_train, y_train):
     random_search = RandomizedSearchCV(
         estimator=rf_model,
         param_distributions=param_dist,
-        n_iter=1000, 
+        n_iter=100, 
         cv=3, 
         n_jobs=-1, 
         verbose=2, 
