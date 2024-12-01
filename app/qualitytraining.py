@@ -1,10 +1,12 @@
 import pandas as pd
 import joblib
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint
 
 def load_data():
     data1 = pd.read_csv("../data/student_sleep_patterns.csv")
@@ -52,20 +54,30 @@ def preprocess_data(data):
 
 def train_model(X_train, y_train):
     rf_model = RandomForestRegressor(random_state=42)
-
-    param_grid = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [None, 10, 20, 30],
-        'min_samples_split': [2, 5, 10],
-        'min_samples_leaf': [1, 2, 4],
+    param_dist = {
+        'n_estimators': [50, 100, 300, 600],
+        'max_depth': [None, 10, 20, 30, 40],
+        'min_samples_split': randint(2, 20),
+        'min_samples_leaf': randint(1, 20),
+        'max_features': ['auto', 'sqrt', 'log2', None],
+        'bootstrap': [True, False]
     }
 
-    grid_search = GridSearchCV(estimator=rf_model, param_grid=param_grid, 
-                               cv=3, n_jobs=-1, verbose=2, scoring='neg_mean_squared_error')
-    grid_search.fit(X_train, y_train.values.ravel())
+    random_search = RandomizedSearchCV(
+        estimator=rf_model,
+        param_distributions=param_dist,
+        n_iter=1000, 
+        cv=3, 
+        n_jobs=-1, 
+        verbose=2, 
+        scoring='neg_mean_squared_error',
+        random_state=42
+    )
 
-    best_model = grid_search.best_estimator_
-    print(f"Best Parameters: {grid_search.best_params_}")
+    random_search.fit(X_train, y_train.values.ravel())
+
+    best_model = random_search.best_estimator_
+    print(f"Best Parameters: {random_search.best_params_}")
 
     return best_model
 
@@ -95,8 +107,6 @@ if __name__ == "__main__":
     model = train_model(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    print(f"Mean Squared Error on Test Data: {mse:.2f}")
 
     joblib.dump(model, "optimized_rf_model.pkl")
 
