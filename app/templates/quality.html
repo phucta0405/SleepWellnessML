@@ -121,10 +121,13 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/">Predict Sleep Duration</a>
+                <a class="nav-link" href="/">How Do I Compare?</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/quality">Predict Sleep Quality</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/chatbot">Chat Assistant</a>
               </li>
             </ul>
           </div>
@@ -162,18 +165,6 @@
           <input type="number" class="form-control" id="sleepDurationInput" placeholder="Enter your sleep duration" step="0.1" min="0" required>
         </div>
 
-        <!-- Study Hours Input -->
-        <div class="mb-3">
-          <label for="studyHoursInput" class="form-label">Study Hours (Per Day)</label>
-          <input type="number" class="form-control" id="studyHoursInput" placeholder="Enter your daily study hours" step="0.1" min="0" required>
-        </div>
-
-        <!-- Screen Time Input -->
-        <div class="mb-3">
-          <label for="screenTimeInput" class="form-label">Screen Time (Hours Per Day)</label>
-          <input type="number" class="form-control" id="screenTimeInput" placeholder="Enter your screen time hours" step="0.1" min="0" required>
-        </div>
-
         <!-- Caffeine Intake Input -->
         <div class="mb-3">
           <label for="caffeineIntakeInput" class="form-label">Caffeine Intake (Cups Per Day)</label>
@@ -196,32 +187,69 @@
         <p><strong>Predicted Sleep Quality:</strong> <span id="predictedSleepQuality">-</span></p>
         <p><strong>Suggestion:</strong> <span id="bestSleepDuration">-</span></p>
         <canvas id="qualityGraph" width="600" height="400"></canvas>
+        <canvas id="timeSeriesGraph" width="600" height="400"></canvas>
       </div>
     </div>
-    <div class="chat-container">
-        <h2 class="text-center">Chatbot</h2>
-        <div class="input-group">
-          <input type="text" id="userInput" class="form-control" placeholder="Type your message here..." aria-label="User input">
-          <button class="btn btn-primary" onclick="sendMessage()">Send</button>
-        </div>
-        <div id="chatBox" class="chat-box"></div>
-      </div>
   </div>
 
   <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+
+    const timestamps = [];
+    const predictedQualities = [];
+
+    // Initialize the Chart.js graph
+    
+    const ctx = document.getElementById("timeSeriesGraph").getContext("2d");
+    const timeSeriesChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: timestamps, // Timestamps for x-axis
+        datasets: [
+          {
+            label: "Predicted Sleep Quality",
+            data: predictedQualities, // Sleep quality for y-axis
+            borderColor: "blue",
+            borderWidth: 2,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Time"
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Predicted Sleep Quality"
+            }
+          }
+        }
+      }
+    });
+    
     // Function to make POST request to Flask API
     async function predictSleepQuality() {
       const age = document.getElementById("ageInput").value;
       const gender = document.querySelector('input[name="gender"]:checked')?.value;
       const sleepDuration = document.getElementById("sleepDurationInput").value;
-      const studyHours = document.getElementById("studyHoursInput").value;
-      const screenTime = document.getElementById("screenTimeInput").value;
       const caffeineIntake = document.getElementById("caffeineIntakeInput").value;
       const physicalActivity = document.getElementById("physicalActivityInput").value;
 
-      if (!age || !gender || !sleepDuration || !studyHours || !screenTime || !caffeineIntake || !physicalActivity) {
+      if (!age || !gender || !sleepDuration || !caffeineIntake || !physicalActivity) {
         alert("Please fill out all fields.");
         return;
       }
@@ -233,8 +261,6 @@
           age: age,
           gender: gender,
           sleep_duration: sleepDuration,
-          study_hours: studyHours,
-          screen_time: screenTime,
           caffeine_intake: caffeineIntake,
           physical_activity: physicalActivity
         })
@@ -247,11 +273,29 @@
         // Update the content of the output box
         document.getElementById("predictedSleepQuality").innerText = `${result.predicted_sleep_quality}/10`;
 
-        document.getElementById("bestSleepDuration").innerText = `The sleep duration that will produce the best sleep quality for you is: ${result.optimal_duration} hours, which will produce a sleep quality of ${result.predicted_sleep_quality}/10.`;
+        document.getElementById("bestSleepDuration").innerText = `The sleep duration that will produce the best sleep quality for you is: ${result.optimal_duration} hours, which will produce a sleep quality of ${result.optimal_quality}/10.`;
+        
+        
+        // Get current timestamp and predicted quality
+        const timestamp = new Date().toLocaleTimeString(); // Current time
+        const predictedQuality = result.predicted_sleep_quality;
+
+        // Update historical data
+        timestamps.push(timestamp);
+        predictedQualities.push(predictedQuality);
+
+        // Update the graph
+        timeSeriesChart.update();
+        
 
         // Plot the durations vs qualities graph
+        
+        
+        if (window.qualityGraphChart) {
+            window.qualityGraphChart.destroy(); // Destroy existing chart
+        }
         const ctx = document.getElementById("qualityGraph").getContext("2d");
-        new Chart(ctx, {
+        window.qualityGraphChart = new Chart(ctx, {
             type: "line",
             data: {
             labels: result.durations, // Sleep durations
@@ -288,6 +332,8 @@
             }
             }
         });
+        
+        
 
         outputContainer.classList.remove("d-none");
       } else {

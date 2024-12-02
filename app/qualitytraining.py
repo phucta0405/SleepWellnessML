@@ -46,6 +46,7 @@ def preprocess_data(data):
     Y = data[["Sleep_Quality"]]
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
+    joblib.dump(scaler, "scaler.pkl")
 
     return X_scaled, Y, scaler
 
@@ -70,16 +71,9 @@ def train_model(X_train, y_train):
     return best_model
 
 def predict_optimal_sleep(model, scaler, age, gender, real_duration, caffeine_intake, physical_activity):
-    sleep_durations = np.linspace(4, 12, 100)
+    sleep_durations = np.round(np.linspace(4, 12, 81), decimals=1)
     max_quality = -np.inf
     best_duration = 0
-
-    features = np.array([[age, gender, real_duration, study_hours, 
-                              screen_time, caffeine_intake, physical_activity]])
-    scaled_features = scaler.transform(features)
-    real_quality = model.predict(scaled_features)[0]
-
-    duration_quality = []
 
     features = np.array([[age, gender, real_duration, caffeine_intake, physical_activity]])
     scaled_features = scaler.transform(features)
@@ -88,7 +82,7 @@ def predict_optimal_sleep(model, scaler, age, gender, real_duration, caffeine_in
     duration_quality = []
 
     for sleep_duration in sleep_durations:
-        features = np.array([[age, gender, sleep_duration,caffeine_intake, physical_activity]])
+        features = np.array([[age, gender, sleep_duration, caffeine_intake, physical_activity]])
         scaled_features = scaler.transform(features)
 
         predicted_quality = model.predict(scaled_features)[0]
@@ -128,10 +122,11 @@ if __name__ == "__main__":
         else:
             gender_encoded = 1 if gender_input == "Male" else 0
 
+            print("hello")
+
             # Predict optimal sleep duration
-            best_duration, max_quality, _, _ = predict_optimal_sleep(
-                model, scaler, user_age, gender_encoded, study_hours, 
-                screen_time, caffeine_intake, physical_activity
+            real_quality, best_duration, max_quality, _, _ = predict_optimal_sleep(
+                model, scaler, user_age, 7, gender_encoded, caffeine_intake, physical_activity
             )
 
             print(f"Optimal Sleep Duration: {best_duration:.2f} hours")

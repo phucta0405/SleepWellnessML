@@ -7,9 +7,9 @@ def provide_sleep_advice(predicted_sleep_duration, age, gender_input, physical_a
     recommended_sleep = round(predict_and_recommend_sleep(age, gender_input, physical_activities),2)
 
     if predicted_sleep_duration < recommended_sleep:
-        return f"At age {age}, it's recommended to get around {recommended_sleep} hours of sleep. You should aim to improve your sleep duration for better wellness.", False
+        return f"At age {age}, it's typical for people to get around {recommended_sleep} hours of sleep. You should aim to improve your sleep duration for better wellness.", False
     elif predicted_sleep_duration > recommended_sleep:
-        return f"You're getting more than the recommended sleep duration of {recommended_sleep} hours. Ensure it's quality sleep, but be mindful of not oversleeping.", True
+        return f"You're getting more than the typical sleep duration of {recommended_sleep} hours. Ensure it's quality sleep, but be mindful of not oversleeping.", True
     else:
         return f"You're on track with the recommended sleep duration of {recommended_sleep} hours for your age. Keep up the good work!", True
 

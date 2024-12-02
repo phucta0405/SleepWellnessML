@@ -1,14 +1,8 @@
 import requests
 
-url = "http://127.0.0.1:5000/predict-sleep-quality"
+url = "http://127.0.0.1:5000/chat"
 data = {
-    "age": 25,
-    "gender": "Male",
-    "sleep_duration": 7.5,
-    "study_hours": 3,
-    "screen_time": 4,
-    "caffeine_intake": 2,
-    "physical_activity": 45
+    "message": "Hello?",
 }
 
 response = requests.post(url, json=data)

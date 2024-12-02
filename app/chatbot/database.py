@@ -1,5 +1,5 @@
 import sqlite3
-import config
+from . import config
 
 def fetch_health_advice(topic):
     conn = sqlite3.connect(config.DATABASE_PATH)
