@@ -14,3 +14,7 @@ def get_gpt_response(prompt, api_key):
     )
 
     return response['choices'][0]['message']['content'].strip()
+
+
+
+

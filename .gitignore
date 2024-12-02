@@ -71,4 +71,4 @@ Thumbs.db
 ehthumbs.db
 
 ./secrets.toml
-./app/.env
+app/.env
