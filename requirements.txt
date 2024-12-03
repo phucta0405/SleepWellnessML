@@ -1,5 +1,6 @@
 streamlit
 openai
-sklearn
-python-dotenv
+scikit-learn
+flask
 flask_cors
+python-dotenv
