@@ -9,11 +9,10 @@ from dotenv import load_dotenv
 from chatbot.gpt_response import get_gpt_response
 from chatbot.database import fetch_health_advice
 
-# Load environment variables from .env file (if using)
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")  # Required for session
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key") 
 CORS(app)
 
 gb_model_male = joblib.load('gb_model_male.pkl')

@@ -1,9 +1,9 @@
 import sqlite3
-from config import DATABASE_PATH
+from chatbot.config import DATABASE_PATH
 
 def connect_to_db():
     """Connect to the SQLite database and return the connection."""
-    conn = sqlite3.connect(config.DATABASE_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
     return conn
 
 def insert_health_advice(topic, advice_text):
